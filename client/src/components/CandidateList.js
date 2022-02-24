@@ -70,12 +70,9 @@ const useStyles = makeStyles({
     },
 });
 
-const CandidateList = ({ candidateDetails, isVoter, castVote }) => {
+const CandidateList = ({ candidateDetails, isVoter, vote }) => {
     const css = useStyles();
 
-    const handleRegistration = async () => {
-        // registerVoter();
-    }
   return (
     <div className={css.votingDetails}>
         <h3 className={css.votingDetailsTitle}>Voting Details</h3>
@@ -102,7 +99,7 @@ const CandidateList = ({ candidateDetails, isVoter, castVote }) => {
                             <StyledTableCell >{row.voteCount}</StyledTableCell>
                             <StyledTableCell >
                                 <Tooltip title="Vote">
-                                    <IconButton onClick={() => castVote(row.id)}>
+                                    <IconButton onClick={() => vote(row.id)}>
                                         <HowToVoteIcon />
                                     </IconButton>
                                 </Tooltip>

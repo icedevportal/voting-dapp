@@ -30,7 +30,7 @@ function App() {
   const getCandidate = async (voting, balId) => {
     let candidates = []
     try {
-      const candidatesCount = await voting.methods.ballot(balId).call();
+      const { candidatesCount } = await voting.methods.ballot(balId).call();
       for (let i = 0; i < candidatesCount; i++) {
         const candidate = await voting.methods.getCandidateNameById(i).call();
         const voteCount = await voting.methods.winningVoteCount(i).call();
@@ -52,6 +52,7 @@ function App() {
       const addCandidateTx = await votingContract.methods.addCandidate(cName).send({ from: account});
       console.log(addCandidateTx)
       if(addCandidateTx.transactionHash) {
+        getCandidate(votingContract, ballotId);
         console.log(`tx hash: ${addCandidateTx.transactionHash}`);
         console.log('Added candidate');
       }
@@ -76,7 +77,26 @@ function App() {
     }
   }
 
-  console.log(account,":acc")
+  const vote = async (id) => {
+    const hasVoted = await votingContract.methods.hasVoted(ballotId, account).call();
+    if(hasVoted) {
+      console.log('Already voted');
+      return;
+    }
+    if(!isVoter) {
+      console.log('Voter not registered');
+      return;
+    }
+    try {
+      const voteTx = await votingContract.methods.vote(id).send({ from: account });
+      if(voteTx.transactionHash) {
+        getCandidate(votingContract, ballotId);
+        console.log('voted');
+      }
+    } catch (error) {
+      console.log(`Error: ${error}`);
+    }
+  }
 
   useEffect(() => {
     async function init() {
@@ -120,7 +140,7 @@ function App() {
       {contractOwner == account && (
         <VotingForm addCandidate={addCandidate} addVoter={addVoter} />
       )}
-      <CandidateList  candidateDetails={candidateDetails} isVoter={isVoter} />
+      <CandidateList vote={vote} candidateDetails={candidateDetails} isVoter={isVoter} />
     </div>
   );
 }

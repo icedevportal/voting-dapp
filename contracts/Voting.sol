@@ -69,6 +69,11 @@ contract MyBallot{
         return presentBallot.candidates[candidateId].name;
     }
 
+    function getCandidateVoteById(uint256 candidateId) public view returns (uint  _candidateVote) {
+        Ballot storage presentBallot = ballot[ActiveBallotId];
+        return presentBallot.candidates[candidateId].voteCount;
+    }
+
     function vote(uint256 candidateId) public {
         Ballot storage presentBallot = ballot[ActiveBallotId];
         require(isVoter[ActiveBallotId][msg.sender]);
