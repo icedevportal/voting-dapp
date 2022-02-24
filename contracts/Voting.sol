@@ -50,6 +50,7 @@ contract MyBallot{
         });
         
         activeBallot.candidates.push(newCandidate);
+        activeBallot.candidatesCount += 1;
     }
 
     function addVoter(address _address) public {
