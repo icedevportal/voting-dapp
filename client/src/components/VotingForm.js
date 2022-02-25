@@ -19,6 +19,8 @@ const Container = styled.div`
     width: 85%;
     margin: 30px auto;
     display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 50px;
 `
 
@@ -59,7 +61,7 @@ const VotingForm = ({ addCandidate, addVoter }) => {
                     onChange={(e) => setVAddress(e.target.value)}
                     value={vAddress}
                 />
-                <Button variant='contained' type='submit'>Add Candidate</Button>
+                <Button variant='contained' type='submit'>Add Voter</Button>
             </form>
         </FormContainer>
     </Container>

@@ -48,10 +48,10 @@ const useStyles = makeStyles({
         width: '90%',
         margin: '30px auto',
         display: 'flex',
+        justifyContent: 'space-around',
         gap: '5rem'
     },
     voterStatus: {
-        flex: '1',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -68,10 +68,19 @@ const useStyles = makeStyles({
     notRegistered: {
         color: '#d32f2f'
     },
+    votingWinner: {
+        marginTop: 20,
+        textAlign: 'center'
+    },
+    winnerDetails: {
+        marginTop: 50
+    }
 });
 
-const CandidateList = ({ candidateDetails, isVoter, vote }) => {
+const CandidateList = (props) => {
+    const { candidateDetails, isVoter, vote, getWinner, contractOwner, account, winningCandidate } = props;
     const css = useStyles();
+    console.log(candidateDetails)
 
   return (
     <div className={css.votingDetails}>
@@ -79,37 +88,41 @@ const CandidateList = ({ candidateDetails, isVoter, vote }) => {
         <div className={css.candidateInfo}>
             <div className={css.candidateTable}>
                 <h3 style={{ marginBottom: 10 }}>Candidate List</h3>
-                <TableContainer component={Paper} sx={{ maxWidth: 500 }}>
-                    <Table sx={{ minWidth: 400 }} aria-label="customized table">
-                      <TableHead>
-                        <TableRow>
-                          <StyledTableCell>ID</StyledTableCell>
-                          <StyledTableCell >Candidate Name</StyledTableCell>
-                          <StyledTableCell >Vote Count</StyledTableCell>
-                          <StyledTableCell >Vote</StyledTableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {candidateDetails?.map((row) => (
-                          <StyledTableRow key={row.id}>
-                            <StyledTableCell >{row.id}</StyledTableCell>
-                            <StyledTableCell>
-                              {row.name}
-                            </StyledTableCell>
-                            <StyledTableCell >{row.voteCount}</StyledTableCell>
-                            <StyledTableCell >
-                                <Tooltip title="Vote">
-                                    <IconButton onClick={() => vote(row.id)}>
-                                        <HowToVoteIcon />
-                                    </IconButton>
-                                </Tooltip>
-                            </StyledTableCell>
+                {candidateDetails.length !== 0 ? (
+                    <TableContainer component={Paper} sx={{ maxWidth: 500 }}>
+                        <Table sx={{ minWidth: 400 }} aria-label="customized table">
+                          <TableHead>
+                            <TableRow>
+                              <StyledTableCell>ID</StyledTableCell>
+                              <StyledTableCell >Candidate Name</StyledTableCell>
+                              <StyledTableCell >Vote Count</StyledTableCell>
+                              <StyledTableCell >Vote</StyledTableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {candidateDetails?.map((row) => (
+                              <StyledTableRow key={row.id}>
+                                <StyledTableCell >{row.id}</StyledTableCell>
+                                <StyledTableCell>
+                                  {row.name}
+                                </StyledTableCell>
+                                <StyledTableCell >{row.voteCount}</StyledTableCell>
+                                <StyledTableCell >
+                                    <Tooltip title="Vote">
+                                        <IconButton onClick={() => vote(row.id)}>
+                                            <HowToVoteIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                </StyledTableCell>
 
-                          </StyledTableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                </TableContainer>
+                              </StyledTableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                    </TableContainer>
+                ): (
+                    <p>No candidates available</p>
+                )}
             </div>
             <div className={css.voterStatus}>
                 <div className={css.voter}>
@@ -123,6 +136,38 @@ const CandidateList = ({ candidateDetails, isVoter, vote }) => {
                     </p>
                 </div>
             </div>
+        </div>
+        <div className={css.votingWinner}>
+            {contractOwner == account && (
+                <Button variant='contained' onClick={() => getWinner()}>End Vote</Button>
+            )}
+            {winningCandidate.length !==0 && (
+                <div className={css.winnerDetails}>
+                    <h3>Winner's List</h3>
+                    <TableContainer component={Paper} sx={{ maxWidth: 500, margin: '15px auto' }}>
+                        <Table sx={{ minWidth: 400 }} aria-label="customized table">
+                          <TableHead>
+                            <TableRow>
+                              <StyledTableCell>Election No:</StyledTableCell>
+                              <StyledTableCell >Winner Name</StyledTableCell>
+                              <StyledTableCell >Vote Count</StyledTableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {winningCandidate?.map((row, idx) => (
+                              <StyledTableRow key={idx}>
+                                <StyledTableCell >{row.ballotId}</StyledTableCell>
+                                <StyledTableCell>
+                                  {row.name}
+                                </StyledTableCell>
+                                <StyledTableCell>{row.voteCount}</StyledTableCell>                       
+                              </StyledTableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                    </TableContainer>
+                </div>
+            )}
         </div>
     </div>
   )

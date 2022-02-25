@@ -2,7 +2,7 @@ import React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
+import {Button, Tooltip} from '@mui/material';
 import styled from 'styled-components';
 import { makeStyles } from '@mui/styles';
 
@@ -20,10 +20,20 @@ const useStyles = makeStyles({
   });
 
 const Login = styled.div`
+    & > span {
+        cursor: pointer;
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+`
+const ElectionNo = styled.div`
+
 `
 
 
-const Header = ({ account, login }) => {
+const Header = ({ account, ballotId }) => {
   const css = useStyles();
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -31,9 +41,14 @@ const Header = ({ account, login }) => {
             <Typography variant="h5" component="div">
               Voting DApp
             </Typography>
+            <ElectionNo>
+                <h3>Election no: {ballotId} </h3>
+            </ElectionNo>
             <Login>
                 {account &&  (
-                    <p>{account}</p>
+                    <Tooltip title='Click to copy address'>
+                        <span onClick={() => navigator.clipboard.writeText(account)}>{account}</span>
+                    </Tooltip>
                 )}
                 
             </Login>
