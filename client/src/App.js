@@ -82,7 +82,7 @@ function App() {
       setAlert({
         ...alert,
         openAlert: true,
-        alertType: 'Error',
+        alertType: 'error',
         alertMessage: 'Error Adding Candidate'
       });
       console.log(error);
