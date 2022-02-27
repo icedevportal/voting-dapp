@@ -236,21 +236,26 @@ function App() {
     }
     async function initializeVotingContract() {
       if(window.ethereum ==  undefined) {
+        console.log('metamask not detected')
         return;
       }
 
-      const voting = new window.web3.eth.Contract(myBallot.abi,contractAddress);
-      const ballotIdQuery = await voting.methods.ActiveBallotId().call();
-      const getOwner = await voting.methods.owner().call();
-      console.log(getOwner,":owner")
+      try {
+        const voting = new window.web3.eth.Contract(myBallot.abi,contractAddress);
+        const ballotIdQuery = await voting.methods.ActiveBallotId().call();
+        const getOwner = await voting.methods.owner().call();
+        console.log(getOwner,":owner")
 
-      getRegisterStatus(voting,ballotIdQuery);
-      setBallotId(ballotIdQuery)
-      setContractOwner(getOwner.toLowerCase());
+        getRegisterStatus(voting,ballotIdQuery);
+        setBallotId(ballotIdQuery)
+        setContractOwner(getOwner.toLowerCase());
 
-      getCandidate(voting, ballotIdQuery);
-      
-      setVotingContract(voting);
+        getCandidate(voting, ballotIdQuery);
+        
+        setVotingContract(voting);
+      } catch (error) {
+        console.log(error)
+      }
       
     }
     init();

@@ -80,7 +80,6 @@ const useStyles = makeStyles({
 const CandidateList = (props) => {
     const { candidateDetails, isVoter, vote, getWinner, contractOwner, account, winningCandidate } = props;
     const css = useStyles();
-    console.log(candidateDetails)
 
   return (
     <div className={css.votingDetails}>
