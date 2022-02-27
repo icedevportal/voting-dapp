@@ -8,7 +8,6 @@ import CandidateList from './components/CandidateList';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import Loader from './components/Loader';
-import { css } from '@emotion/react';
 
 const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
 
