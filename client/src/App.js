@@ -19,7 +19,6 @@ function App() {
   const [ballotId, setBallotId] = useState();
   const [contractOwner, setContractOwner] = useState('');
   const [loading, setLoading] = useState(false);
-  const [endVoteFlag, setEndVoteFlag] = useState(false);
   const [alert, setAlert] = useState({
     openAlert: false,
     alertType: '',
@@ -269,9 +268,9 @@ function App() {
     <div className="App">
       <Header account={account} ballotId={ballotId} />
       {contractOwner == account && (
-        <VotingForm addCandidate={addCandidate} addVoter={addVoter} />
+        <VotingForm addCandidate={addCandidate} addVoter={addVoter} getWinner={getWinner} />
       )}
-      <CandidateList vote={vote} getWinner={getWinner} candidateDetails={candidateDetails} isVoter={isVoter} account={account} contractOwner={contractOwner} winningCandidate={winningCandidate} />
+      <CandidateList vote={vote}  candidateDetails={candidateDetails} isVoter={isVoter} account={account} contractOwner={contractOwner} winningCandidate={winningCandidate} />
       <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'right' }} open={openAlert} autoHideDuration={3000} onClose={closeAlert}>
         <Alert onClose={closeAlert} severity={alertType} sx={{ width: '100%' }}>
           {alertMessage}

@@ -69,16 +69,12 @@ const useStyles = makeStyles({
         color: '#d32f2f'
     },
     votingWinner: {
-        marginTop: 20,
         textAlign: 'center'
     },
-    winnerDetails: {
-        marginTop: 50
-    }
 });
 
 const CandidateList = (props) => {
-    const { candidateDetails, isVoter, vote, getWinner, contractOwner, account, winningCandidate } = props;
+    const { candidateDetails, isVoter, vote, winningCandidate } = props;
     const css = useStyles();
 
   return (
@@ -123,23 +119,7 @@ const CandidateList = (props) => {
                     <p>No candidates available</p>
                 )}
             </div>
-            <div className={css.voterStatus}>
-                <div className={css.voter}>
-                    <p>
-                        <strong>Voter Status: {' '}</strong>
-                        {isVoter ? (
-                            <span className={css.registered}>Registered</span>
-                        ): (
-                            <span className={css.notRegistered}>Not Registered</span>
-                        )}
-                    </p>
-                </div>
-            </div>
-        </div>
-        <div className={css.votingWinner}>
-            {contractOwner == account && (
-                <Button variant='contained' onClick={() => getWinner()}>End Vote</Button>
-            )}
+            <div className={css.votingWinner}>
             {winningCandidate.length !==0 && (
                 <div className={css.winnerDetails}>
                     <h3>Winner's List</h3>
@@ -167,6 +147,20 @@ const CandidateList = (props) => {
                     </TableContainer>
                 </div>
             )}
+        </div>
+            
+        </div>
+        <div className={css.voterStatus}>
+            <div className={css.voter}>
+                <p>
+                    <strong>Voter Status: {' '}</strong>
+                    {isVoter ? (
+                        <span className={css.registered}>Registered</span>
+                    ): (
+                        <span className={css.notRegistered}>Not Registered</span>
+                    )}
+                </p>
+            </div>
         </div>
     </div>
   )
