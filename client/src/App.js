@@ -16,15 +16,15 @@ function App() {
   const [votingContract, setVotingContract] = useState({});
   const [candidateDetails, setcandidateDetails] = useState([])
   const [isVoter, setIsVoter] = useState(false);
-  const [ballotId, setBallotId] = useState();
   const [contractOwner, setContractOwner] = useState('');
   const [loading, setLoading] = useState(false);
+  const [voteStatus, setVoteStatus] = useState(false);
   const [alert, setAlert] = useState({
     openAlert: false,
     alertType: '',
     alertMessage: ''
   })
-  const [winningCandidate, setWinningCandidate] = useState(JSON.parse(localStorage.getItem('winner')) ?? []);
+  const [winningCandidate, setWinningCandidate] = useState({});
 
   const { openAlert, alertType, alertMessage } = alert;
 
@@ -33,22 +33,22 @@ function App() {
     setAccount(accounts[0]);
   }
 
-  const getRegisterStatus = async (voting, balId) => {
-    const isVoterFlag = await voting.methods.isVoter(balId,account).call();
+  const getRegisterStatus = async (voting) => {
+    const isVoterFlag = await voting.methods.isVoter(account).call();
     setIsVoter(isVoterFlag);
   }
 
   const getCandidate = async (voting, balId) => {
     let candidates = []
     try {
-      const { candidatesCount } = await voting.methods.ballot(balId).call();
+      const candidatesCount = await voting.methods.candidatesCount().call();
+      const candidatesId = await voting.methods.getCandidatesId().call();
       for (let i = 0; i < candidatesCount; i++) {
-        const candidate = await voting.methods.getCandidateNameById(i).call();
-        const voteCount = await voting.methods.getCandidateVoteById(i).call();
+        const candidate = await voting.methods.candidates(candidatesId[i]).call();
         candidates.push({
-          id: i,
-          name: candidate,
-          voteCount
+          id: candidate.id,
+          name: candidate.name,
+          voteCount: candidate.voteCount
         })
       }
       setcandidateDetails(candidates);
@@ -64,7 +64,7 @@ function App() {
       const addCandidateTx = await votingContract.methods.addCandidate(cName).send({ from: account});
       console.log(addCandidateTx)
       if(addCandidateTx.transactionHash) {
-        getCandidate(votingContract, ballotId);
+        getCandidate(votingContract);
         console.log(`tx hash: ${addCandidateTx.transactionHash}`);
         console.log('Added candidate');
         setLoading(false);
@@ -93,7 +93,7 @@ function App() {
       try {
         const addVoterTx = await votingContract.methods.addVoter(address).send({ from: account });
         if(addVoterTx.transactionHash) {
-          getRegisterStatus(votingContract, ballotId);
+          getRegisterStatus(votingContract);
           console.log('Voter Added');
           setLoading(false);
           setAlert({
@@ -126,7 +126,7 @@ function App() {
 
   const vote = async (id) => {
     setLoading(true);
-    const hasVoted = await votingContract.methods.hasVoted(ballotId, account).call();
+    const hasVoted = await votingContract.methods.hasVoted(account).call();
     if(hasVoted) {
       setLoading(false);
       setAlert({
@@ -152,7 +152,7 @@ function App() {
     try {
       const voteTx = await votingContract.methods.vote(id).send({ from: account });
       if(voteTx.transactionHash) {
-        getCandidate(votingContract, ballotId);
+        getCandidate(votingContract);
         console.log('voted');
         setLoading(false);
         setAlert({
@@ -177,16 +177,14 @@ function App() {
   const getWinner = async () => {
     try {
       setLoading(true)
-      const winningCandidateId = await votingContract.methods.winningCandidateId(ballotId).call();
+      const winningCandidateId = await votingContract.methods.winningCandidateId().call();
       const winner = candidateDetails.find(item => item.id == winningCandidateId);
-      const winnerDetails = {...winner, ballotId}
-      console.log(winnerDetails);
+      console.log(winner);
       const endVoteTx = await votingContract.methods.endVote().send({ from: account });
       if(endVoteTx.transactionHash) {
-        setWinningCandidate([winnerDetails, ...winningCandidate])
-        localStorage.setItem('winner',JSON.stringify([...winningCandidate,winnerDetails]))
-        const ballotIdQuery = await votingContract.methods.ActiveBallotId().call();
-        setBallotId(ballotIdQuery);
+        setWinningCandidate(winner)
+        const hasVoteEnded = await votingContract.methods.isVoteEnded().call();
+        setVoteStatus(hasVoteEnded);
         setLoading(false);
 
         setAlert({
@@ -240,15 +238,16 @@ function App() {
 
       try {
         const voting = new window.web3.eth.Contract(myBallot.abi,contractAddress);
-        const ballotIdQuery = await voting.methods.ActiveBallotId().call();
         const getOwner = await voting.methods.owner().call();
-        console.log(getOwner,":owner")
+        const hasVoteEnded = await voting.methods.isVoteEnded().call();
 
-        getRegisterStatus(voting,ballotIdQuery);
-        setBallotId(ballotIdQuery)
+
+        getRegisterStatus(voting);
+
         setContractOwner(getOwner.toLowerCase());
+        setVoteStatus(hasVoteEnded);
 
-        getCandidate(voting, ballotIdQuery);
+        getCandidate(voting);
         
         setVotingContract(voting);
       } catch (error) {
@@ -263,10 +262,10 @@ function App() {
       login()
     });
     
-  }, [account, ballotId]);
+  }, [account, voteStatus]);
   return (
     <div className="App">
-      <Header account={account} ballotId={ballotId} />
+      <Header account={account} voteStatus={voteStatus} />
       {contractOwner == account && (
         <VotingForm addCandidate={addCandidate} addVoter={addVoter} getWinner={getWinner} />
       )}

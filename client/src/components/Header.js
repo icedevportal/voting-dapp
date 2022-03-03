@@ -33,7 +33,7 @@ const ElectionNo = styled.div`
 `
 
 
-const Header = ({ account, ballotId }) => {
+const Header = ({ account, voteStatus }) => {
   const css = useStyles();
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -42,7 +42,7 @@ const Header = ({ account, ballotId }) => {
               Voting DApp
             </Typography>
             <ElectionNo>
-                <h3>Election no: {ballotId} </h3>
+                <h3>Election Staus: {voteStatus ? 'Ended' : 'On Going'} </h3>
             </ElectionNo>
             <Login>
                 {account &&  (

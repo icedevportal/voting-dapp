@@ -14,82 +14,71 @@ contract MyBallot{
         bool voted;
     }
 
-    struct Ballot {
-        Candidate[] candidates;
-        Voter[] voters;
-        uint256 winningCandidateId;
-        uint256 candidatesCount;
-    }
 
     address public owner;
-    uint256 public ActiveBallotId;
-    // BallotId => Ballot
-    mapping (uint256 => Ballot) public ballot;
+    uint public winningCandidateId;
+    Candidate[] public candidates;
+    Voter[] voters;
+    uint public candidatesCount = 0;
+    uint public winningVoteCount = 0;
+    bool public isVoteEnded = false;
 
-    // BallotId => votecount
-    mapping (uint256 => uint256) public winningVoteCount;
-    // BallotId => WinningCandidateId
-    mapping(uint256 => uint256) public winningCandidateId;
 
-    mapping(uint256 => mapping(address => bool)) public hasVoted;
-    mapping(uint256 => mapping(address => bool)) public isVoter;
-    mapping(uint256 => mapping (uint256 => bool)) public isCandidate;
+    mapping(address => bool) public hasVoted;
+    mapping(address => bool) public isVoter;
 
     constructor() {
-        ActiveBallotId = 1;
         owner = msg.sender;
     }
 
     function addCandidate(string memory _name) public {
         require(msg.sender == owner);
-        Ballot storage activeBallot = ballot[ActiveBallotId];
         Candidate memory newCandidate = Candidate({
-            id : activeBallot.candidatesCount,
+            id : candidatesCount,
             name : _name,
             voteCount : 0
         });
         
-        activeBallot.candidates.push(newCandidate);
-        activeBallot.candidatesCount += 1;
+        candidates.push(newCandidate);
+        candidatesCount += 1;
     }
 
     function addVoter(address _address) public {
         require(msg.sender == owner);
-        Ballot storage activeBallot = ballot[ActiveBallotId];
         Voter memory newVoter = Voter({
-            _address : _address,
+            _address : _address, 
             voted: false
         });
-        isVoter[ActiveBallotId][_address] = true;
-        activeBallot.voters.push(newVoter);
+        isVoter[_address] = true;
+        voters.push(newVoter);
     }
     
-    function getCandidateNameById(uint256 candidateId) public view returns (string memory _candidateName) {
-        Ballot storage presentBallot = ballot[ActiveBallotId];
-        return presentBallot.candidates[candidateId].name;
+    function getCandidatesId() public view returns (uint[] memory ) {
+        uint[] memory list = new uint[](candidatesCount);
+        for(uint i = 0; i < candidatesCount; i++) {
+            list[i] = candidates[i].id;
+        }
+        return list;
     }
 
-    function getCandidateVoteById(uint256 candidateId) public view returns (uint  _candidateVote) {
-        Ballot storage presentBallot = ballot[ActiveBallotId];
-        return presentBallot.candidates[candidateId].voteCount;
-    }
 
     function vote(uint256 candidateId) public {
-        Ballot storage presentBallot = ballot[ActiveBallotId];
-        require(isVoter[ActiveBallotId][msg.sender]);
-        require(!hasVoted[ActiveBallotId][msg.sender]);
+        require(isVoter[msg.sender], "Voter is not registered");
+        require(!hasVoted[msg.sender], "Voter has already voted");
+        require(!isVoteEnded, "voting process has ended");
 
-        presentBallot.candidates[candidateId].voteCount += 1;
-
-        if ( presentBallot.candidates[candidateId].voteCount > winningVoteCount[ActiveBallotId] ) {
-            winningCandidateId[ActiveBallotId] = candidateId;
-            winningVoteCount[ActiveBallotId] = presentBallot.candidates[candidateId].voteCount;
+       candidates[candidateId].voteCount += 1;
+       if ( candidates[candidateId].voteCount > winningVoteCount ) {
+            winningCandidateId = candidateId;
+            winningVoteCount = candidates[candidateId].voteCount;
         }
-        hasVoted[ActiveBallotId][msg.sender] = true;
+
+        
+        hasVoted[msg.sender] = true;
     }
 
     function endVote() public {
         require(msg.sender == owner);
-        ActiveBallotId += 1;
+        isVoteEnded = true;
     }
 }

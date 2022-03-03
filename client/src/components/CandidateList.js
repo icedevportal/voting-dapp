@@ -48,7 +48,6 @@ const useStyles = makeStyles({
         width: '90%',
         margin: '30px auto',
         display: 'flex',
-        justifyContent: 'space-around',
         gap: '5rem'
     },
     voterStatus: {
@@ -77,10 +76,11 @@ const CandidateList = (props) => {
     const { candidateDetails, isVoter, vote, winningCandidate } = props;
     const css = useStyles();
 
+
   return (
     <div className={css.votingDetails}>
         <h3 className={css.votingDetailsTitle}>Voting Details</h3>
-        <div className={css.candidateInfo}>
+        <div className={css.candidateInfo} style={{ justifyContent: Object.keys(winningCandidate).length > 0 ? 'space-around' : 'center' }}>
             <div className={css.candidateTable}>
                 <h3 style={{ marginBottom: 10 }}>Candidate List</h3>
                 {candidateDetails.length !== 0 ? (
@@ -120,28 +120,24 @@ const CandidateList = (props) => {
                 )}
             </div>
             <div className={css.votingWinner}>
-            {winningCandidate.length !==0 && (
+            {Object.keys(winningCandidate).length > 0 && (
                 <div className={css.winnerDetails}>
-                    <h3>Winner's List</h3>
+                    <h3>Winner's Details</h3>
                     <TableContainer component={Paper} sx={{ maxWidth: 500, margin: '15px auto' }}>
                         <Table sx={{ minWidth: 400 }} aria-label="customized table">
-                          <TableHead>
-                            <TableRow>
-                              <StyledTableCell>Election No:</StyledTableCell>
-                              <StyledTableCell >Winner Name</StyledTableCell>
-                              <StyledTableCell >Vote Count</StyledTableCell>
-                            </TableRow>
-                          </TableHead>
                           <TableBody>
-                            {winningCandidate?.map((row, idx) => (
-                              <StyledTableRow key={idx}>
-                                <StyledTableCell >{row.ballotId}</StyledTableCell>
-                                <StyledTableCell>
-                                  {row.name}
-                                </StyledTableCell>
-                                <StyledTableCell>{row.voteCount}</StyledTableCell>                       
+                              <StyledTableRow >
+                                <StyledTableCell > <strong>ID:</strong> </StyledTableCell>
+                                <StyledTableCell >{winningCandidate.id}</StyledTableCell>                      
                               </StyledTableRow>
-                            ))}
+                              <StyledTableRow >
+                                <StyledTableCell > <strong>Name:</strong> </StyledTableCell>
+                                <StyledTableCell >{winningCandidate.name}</StyledTableCell>                      
+                              </StyledTableRow>
+                              <StyledTableRow >
+                                <StyledTableCell ><strong>Vote Cout:</strong></StyledTableCell>
+                                <StyledTableCell >{winningCandidate.voteCount}</StyledTableCell>                      
+                              </StyledTableRow>
                           </TableBody>
                         </Table>
                     </TableContainer>
